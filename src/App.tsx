@@ -10,21 +10,13 @@ import {
 } from "recharts";
 import { TrendingUp } from "lucide-react";
 import axios from "axios";
+import { SampleData1, SampleData2, SampleData3 } from "./sample-data";
 
 interface SalesData {
   date: string;
   actual?: number;
   predicted?: number;
 }
-
-// Mock data for testing - 180 days
-const MOCK_DATA = Array.from({ length: 180 }, (_, i) => {
-  const base = 1400;
-  const trend = i * 2; // Slight upward trend
-  const seasonal = Math.sin((i / 30) * Math.PI) * 100; // 30-day seasonal pattern
-  const random = (Math.random() - 0.5) * 100; // Random variation
-  return Math.round(base + trend + seasonal + random);
-}).join(",");
 
 function App() {
   const [salesData, setSalesData] = useState<SalesData[]>([]);
@@ -47,7 +39,7 @@ function App() {
 
     try {
       const values = bulkInput.split(",").map((v) => Number(v.trim()));
-      if (values.length !== 180) {
+      if (values.length <170) {
         alert("Please provide exactly 180 values separated by commas");
         setLoading(false);
         return;
@@ -55,7 +47,7 @@ function App() {
 
       // Get predictions first
       const response = await axios.post(import.meta.env.VITE_API_URL, {
-        sales_data: values,
+        sales_data: values, prediction_length: 20
       });
 
       const predictedData = response.data.prediction;
@@ -63,7 +55,7 @@ function App() {
 
       const chartData: SalesData[] = [];
       const startDate = new Date();
-      startDate.setDate(startDate.getDate() - 180);
+      startDate.setDate(startDate.getDate() - values.length);
 
       // First, set only historical data
       for (let i = 0; i < values.length; i++) {
@@ -123,7 +115,7 @@ function App() {
             Daily Sales Forecasting
           </h1>
           <p className="mt-2 text-lg text-gray-600">
-            Predict next 30 days of sales based on 180 days of historical data
+            Predict next 20 days of sales based on 180 days of historical data
           </p>
         </div>
 
@@ -137,17 +129,31 @@ function App() {
                 <textarea
                   value={bulkInput}
                   onChange={(e) => setBulkInput(e.target.value)}
-                  className="w-full h-32 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="w-full h-32 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
                   placeholder="e.g., 1200,1300,1250,..."
                 />
               </div>
-              <div className="flex justify-end">
+              <div className="flex justify-end gap-4">
                 <button
                   type="button"
-                  onClick={() => setBulkInput(MOCK_DATA)}
+                  onClick={() => setBulkInput(SampleData1)}
                   className="text-sm text-indigo-600 hover:text-indigo-500"
                 >
-                  Use sample data
+                  Use sample data_1
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBulkInput(SampleData2)}
+                  className="text-sm text-indigo-600 hover:text-indigo-500"
+                >
+                  Use sample data_2
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBulkInput(SampleData3)}
+                  className="text-sm text-indigo-600 hover:text-indigo-500"
+                >
+                  Use sample data_3
                 </button>
               </div>
             </div>
@@ -155,7 +161,7 @@ function App() {
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 select-none"
               >
                 {loading ? "Calculating..." : "Generate Forecast"}
               </button>
@@ -211,14 +217,13 @@ function App() {
             {predictions.length > 0 && showPredictions && (
               <div className="mt-6">
                 <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                  30-Day Forecast Summary
+                  20-Day Forecast Summary
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <p className="text-gray-600">Average Predicted Sales</p>
                     <p className="text-2xl font-bold text-indigo-600">
-                      $
-                      {Math.round(
+                      ${Math.round(
                         predictions.reduce((a, b) => a + b, 0) /
                           predictions.length
                       ).toLocaleString()}
