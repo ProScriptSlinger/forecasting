@@ -39,8 +39,8 @@ function App() {
 
     try {
       const values = bulkInput.split(",").map((v) => Number(v.trim()));
-      if (values.length <170) {
-        alert("Please provide exactly 180 values separated by commas");
+      if (values.length <40) {
+        alert("Please provide a minimum of 40 values separated by commas.");
         setLoading(false);
         return;
       }
@@ -115,7 +115,7 @@ function App() {
             Daily Sales Forecasting
           </h1>
           <p className="mt-2 text-lg text-gray-600">
-            Predict next 20 days of sales based on 180 days of historical data
+          Predict the next 20 days of sales based on at least 40 days of historical data.
           </p>
         </div>
 
@@ -124,7 +124,7 @@ function App() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Paste 180 comma-separated values
+                Paste at least 40 comma-separated values.
                 </label>
                 <textarea
                   value={bulkInput}
